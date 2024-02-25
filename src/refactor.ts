@@ -5,7 +5,7 @@ import * as fs from 'fs';
 const directoryPath = './src';
 
 const allowImportTransformer: ts.TransformerFactory<ts.SourceFile> = (context) => {
-    const allowImport = ts.factory.createImportDeclaration(
+    /*const allowImport = ts.factory.createImportDeclaration(
         undefined, 
         ts.factory.createImportClause(false, 
             //ts.factory.createIdentifier('Allowed'),
@@ -21,12 +21,17 @@ const allowImportTransformer: ts.TransformerFactory<ts.SourceFile> = (context) =
         ),
         ts.factory.createStringLiteral('class-validator'),
         undefined
-      );
+      );*/
 
     return sourceFile => {
         const visitor: ts.Visitor = (node: ts.Node): ts.Node => {
+            if(ts.isNamedImports(node)){
+                return ts.factory.updateNamedImports(node, [
+                    ...node.elements,
+                    ts.factory.createImportSpecifier(false, undefined, ts.factory.createIdentifier('Allowed'))]);
+            }
             if(ts.isSourceFile(node)){
-                return ts.factory.updateSourceFile(
+                /*return ts.factory.updateSourceFile(
                     node, 
                     [allowImport, ...node.statements],
                     node.isDeclarationFile,
@@ -34,7 +39,7 @@ const allowImportTransformer: ts.TransformerFactory<ts.SourceFile> = (context) =
                     node.typeReferenceDirectives,
                     node.hasNoDefaultLib,
                     node.libReferenceDirectives
-                    );
+                    );*/
                 }
             return ts.visitEachChild(node, visitor, context);
         }
